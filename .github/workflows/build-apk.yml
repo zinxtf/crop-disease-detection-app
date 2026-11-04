@@ -13,8 +13,12 @@ jobs:
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
-      - run: flutter pub get
-      - run: flutter build apk --release
+      - name: Fix Gradle & Get Packages
+        run: |
+          flutter create --platforms=android . --project-name crop_disease_detection_app --overwrite
+          flutter pub get
+      - name: Build APK
+        run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: crop-disease-apk
