@@ -13,18 +13,40 @@ jobs:
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
-      - name: Fix Project and Set Your Icon
+      - name: Fix Project and Convert Your Icon to Real PNG
         run: |
           flutter create --platforms=android . --project-name crop_disease_detection_app --overwrite
           flutter pub get
-          echo "Setting your custom icon..."
-          for dpi in mipmap-hdpi mipmap-mdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
-            mkdir -p android/app/src/main/res/$dpi
-            cp assets/icon.png android/app/src/main/res/$dpi/ic_launcher.png
-          done
-          ls android/app/src/main/res/mipmap-hdpi/
+          python3 -c "
+          from PIL import Image
+          import os, glob
+          # Find your icon (any jpg/png in assets)
+          icon_path = None
+          for p in ['assets/icon.png', 'assets/IMG-20261104-WA2902.jpg', 'assets/IMG-20261104-WA2902.png']:
+            if os.path.exists(p):
+              icon_path = p
+              break
+          if not icon_path:
+            # find any jpg in assets
+            files = glob.glob('assets/*.jpg') + glob.glob('assets/*.jpeg') + glob.glob('assets/*.png')
+            if files:
+              icon_path = files[0]
+          print(f'Using icon: {icon_path}')
+          if icon_path:
+            im = Image.open(icon_path).convert('RGBA')
+            w,h = im.size
+            m = min(w,h)
+            im = im.crop(((w-m)//2, (h-m)//2, (w-m)//2+m, (h-m)//2+m))
+            # Create 5 sizes for Android
+            for dpi, size in [('mipmap-mdpi',48),('mipmap-hdpi',72),('mipmap-xhdpi',96),('mipmap-xxhdpi',144),('mipmap-xxxhdpi',192)]:
+              import pathlib
+              pathlib.Path(f'android/app/src/main/res/{dpi}').mkdir(parents=True, exist_ok=True)
+              resized = im.resize((size,size), Image.LANCZOS)
+              resized.save(f'android/app/src/main/res/{dpi}/ic_launcher.png', 'PNG')
+            print('Icons created!')
+          "
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
       - uses: actions/upload-artifact@v4
         with:
           name: crop-disease-apk
