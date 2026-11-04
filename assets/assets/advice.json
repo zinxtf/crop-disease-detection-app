@@ -1,0 +1,17 @@
+{
+  "Tomato_Early_Blight": {
+    "en": "Remove affected leaves, Copper fungicide every 7 days, Neem oil 5ml/L water",
+    "hi": "प्रभावित पत्तियों को हटा दें, कॉपर फफूंदनाशक हर 7 दिन, नीम तेल 5ml/लीटर",
+    "symptoms": "Dark brown spots with concentric rings on leaves"
+  },
+  "Tomato_Late_Blight": {
+    "en": "Avoid overhead watering, use Mancozeb spray, ensure air circulation",
+    "hi": "ऊपर से पानी देने से बचें, मैंकोजेब का छिड़काव, हवा का संचार बनाए रखें",
+    "symptoms": "Water-soaked lesions with white mold"
+  },
+  "Healthy": {
+    "en": "Plant is healthy. Continue regular care and monitoring.",
+    "hi": "पौधा स्वस्थ है। नियमित देखभाल जारी रखें।",
+    "symptoms": "No disease symptoms"
+  }
+}
