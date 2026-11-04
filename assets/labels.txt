@@ -1,0 +1,7 @@
+Tomato_Healthy
+Tomato_Early_Blight
+Tomato_Late_Blight
+Potato_Early_Blight
+Potato_Late_Blight
+Pepper_Bell_Bacterial_Spot
+Pepper_Bell_Healthy
