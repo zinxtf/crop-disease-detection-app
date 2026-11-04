@@ -13,12 +13,8 @@ jobs:
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
-      - name: Fix project structure
-        run: |
-          flutter create -t app . --project-name crop_disease_detection_app --org com.zinxtf --overwrite
-          flutter pub get
-      - name: Build APK
-        run: flutter build apk --release
+      - run: flutter pub get
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: crop-disease-apk
