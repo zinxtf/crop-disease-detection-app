@@ -14,20 +14,15 @@ jobs:
           flutter-version: '3.22.0'
           channel: 'stable'
 
-      - name: Create FULL Crop Doctor App from Scratch
+      - name: Create FULL Crop Doctor App
         run: |
           pip install Pillow
-          # Create base project
           flutter create --platforms=android . --project-name crop_disease_detection_app --overwrite
-          
-          # 1. SET APP NAME TO "Crop Doctor"
           sed -i 's/android:label=".*"/android:label="Crop Doctor"/' android/app/src/main/AndroidManifest.xml
-          echo "App name set to Crop Doctor"
           
-          # 2. WRITE PUBSPEC.YAML
           cat > pubspec.yaml << 'PUB'
           name: crop_disease_detection_app
-          description: Crop Doctor - AI Crop Disease Detection with History
+          description: Crop Doctor - AI with History
           publish_to: 'none'
           version: 3.0.0+1
           environment:
@@ -45,7 +40,6 @@ jobs:
               - assets/
           PUB
           
-          # 3. WRITE FULL REAL MAIN.DART - Crop Doctor with History
           cat > lib/main.dart << 'MAIN'
           import 'dart:io';
           import 'dart:convert';
@@ -54,55 +48,31 @@ jobs:
           import 'package:image_picker/image_picker.dart';
           import 'package:shared_preferences/shared_preferences.dart';
           import 'package:intl/intl.dart';
-          
           void main() => runApp(const CropApp());
-          
           class CropApp extends StatelessWidget {
             const CropApp({super.key});
             @override
             Widget build(BuildContext context) {
-              return MaterialApp(
-                title: 'Crop Doctor',
-                debugShowCheckedModeBanner: false,
-                theme: ThemeData(primarySwatch: Colors.green, useMaterial3: true, scaffoldBackgroundColor: Colors.green.shade50),
-                home: const HomeScreen(),
-              );
+              return MaterialApp(title: 'Crop Doctor', debugShowCheckedModeBanner: false, theme: ThemeData(primarySwatch: Colors.green, useMaterial3: true, scaffoldBackgroundColor: Colors.green.shade50), home: const HomeScreen());
             }
           }
-          
           class Report {
             String date, disease, confidence, treatment, imagePath;
             Report({required this.date, required this.disease, required this.confidence, required this.treatment, required this.imagePath});
             Map<String,dynamic> toJson() => {"date":date,"disease":disease,"confidence":confidence,"treatment":treatment,"imagePath":imagePath};
             static Report fromJson(Map<String,dynamic> j) => Report(date:j["date"], disease:j["disease"], confidence:j["confidence"], treatment:j["treatment"], imagePath:j["imagePath"]);
           }
-          
           class HomeScreen extends StatefulWidget {
             const HomeScreen({super.key});
             @override
             State<HomeScreen> createState() => _HomeScreenState();
           }
-          
           class _HomeScreenState extends State<HomeScreen> {
-            File? _image;
-            String _disease = "";
-            String _conf = "";
-            String _treat = "";
-            String _status = "Welcome to Crop Doctor! 👨‍⚕️🌱\nTake photo of your crop leaf";
-            Color _color = Colors.green;
-            bool _busy = false;
-            final ImagePicker _picker = ImagePicker();
-            List<Report> _history = [];
-          
+            File? _image; String _disease = ""; String _conf = ""; String _treat = ""; String _status = "Welcome to Crop Doctor! 👨‍⚕️🌱\nTake photo of your crop"; Color _color = Colors.green; bool _busy = false;
+            final ImagePicker _picker = ImagePicker(); List<Report> _history = [];
             @override
             void initState() { super.initState(); _loadHistory(); }
-          
-            Future<void> _loadHistory() async {
-              final prefs = await SharedPreferences.getInstance();
-              final list = prefs.getStringList("reports") ?? [];
-              setState(() { _history = list.map((e) => Report.fromJson(jsonDecode(e))).toList().reversed.toList(); });
-            }
-          
+            Future<void> _loadHistory() async { final prefs = await SharedPreferences.getInstance(); final list = prefs.getStringList("reports") ?? []; setState(() { _history = list.map((e) => Report.fromJson(jsonDecode(e))).toList().reversed.toList(); }); }
             Future<void> _saveCurrentReport() async {
               if (_disease.isEmpty) return;
               final now = DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.now());
@@ -114,33 +84,24 @@ jobs:
               await _loadHistory();
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("✅ Report Saved to History!"), backgroundColor: Colors.green));
             }
-          
             Future<void> _analyze(File img) async {
               setState(() { _busy = true; _status = "🔍 AI Analyzing..."; _disease=""; _treat=""; });
               await Future.delayed(const Duration(seconds: 2));
               final r = math.Random();
               final list = [
-                {"d": "Healthy Leaf / Fruit 🟢", "c": "94%", "col": Colors.green, "t": "✅ Healthy - No disease\n\nSOLUTION:\n• Water properly\n• Neem oil 5ml/L every 15 days\n\nस्वस्थ! कोई बीमारी नहीं।"},
-                {"d": "Early Blight 🔴", "c": "88%", "col": Colors.orange, "t": "⚠️ Early Blight\n\nSOLUTION:\n1. Remove affected leaves\n2. Mancozeb 2.5g/L spray\n3. Repeat after 7 days\n\nइलाज: Mancozeb छिड़काव"},
-                {"d": "Brown Leaf Spot 🟤", "c": "91%", "col": Colors.brown, "t": "⚠️ Brown Leaf Spot\n\nSOLUTION:\n1. Copper Oxychloride 3g/L\n2. Improve drainage\n\nइलाज: कॉपर ऑक्सीक्लोराइड"},
-                {"d": "Yellow Mosaic Virus 🟡", "c": "85%", "col": Colors.amber, "t": "⚠️ Yellow Mosaic Virus\n\nSOLUTION:\n1. Whitefly control Imidacloprid 0.5ml/L\n2. Urea 1% + Zinc\n\nइलाज: सफेद मक्खी नियंत्रण"},
+                {"d": "Healthy Leaf / Fruit 🟢", "c": "94%", "col": Colors.green, "t": "✅ Healthy - No disease\n\nSOLUTION:\n• Water properly\n• Neem oil 5ml/L every 15 days\n\nस्वस्थ!"},
+                {"d": "Early Blight 🔴", "c": "88%", "col": Colors.orange, "t": "⚠️ Early Blight\n\nSOLUTION:\n1. Remove affected leaves\n2. Mancozeb 2.5g/L spray\n\nइलाज: Mancozeb"},
+                {"d": "Brown Leaf Spot 🟤", "c": "91%", "col": Colors.brown, "t": "⚠️ Brown Spot\n\nSOLUTION:\n1. Copper Oxychloride 3g/L\n\nइलाज: कॉपर"},
+                {"d": "Yellow Mosaic 🟡", "c": "85%", "col": Colors.amber, "t": "⚠️ Yellow Mosaic\n\nSOLUTION:\n1. Whitefly control Imidacloprid 0.5ml/L\n2. Urea 1% + Zinc\n\nइलाज: सफेद मक्खी"},
                 {"d": "Fruit Rot 🍅", "c": "89%", "col": Colors.red, "t": "⚠️ Fruit Rot\n\nSOLUTION:\n1. Harvest on time\n2. Bavistin 1g/L\n\nइलाज: समय पर तुड़ाई"},
               ];
               final p = list[r.nextInt(list.length)];
               setState(() { _busy = false; _disease = p["d"] as String; _conf = p["c"] as String; _color = p["col"] as Color; _treat = p["t"] as String; _status = ""; });
             }
-          
-            Future<void> pick(bool cam) async {
-              final XFile? f = await _picker.pickImage(source: cam ? ImageSource.camera : ImageSource.gallery, imageQuality: 85);
-              if (f == null) return;
-              setState(() { _image = File(f.path); });
-              await _analyze(_image!);
-            }
-          
+            Future<void> pick(bool cam) async { final XFile? f = await _picker.pickImage(source: cam ? ImageSource.camera : ImageSource.gallery, imageQuality: 85); if (f == null) return; setState(() { _image = File(f.path); }); await _analyze(_image!); }
             void _showHistory() {
-              showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.white, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (ctx) => DraggableScrollableSheet(initialChildSize: 0.85, maxChildSize: 0.95, expand: false, builder: (ctx, scroll) => Column(children: [Container(height: 5, width: 50, margin: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10))), Text("📜 History (${_history.length} Reports)", style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)), const Divider(), Expanded(child: _history.isEmpty ? const Center(child: Text("No reports saved yet\nTake photo → Save Report", textAlign: TextAlign.center)) : ListView.builder(controller: scroll, itemCount: _history.length, itemBuilder: (c,i){ final rep = _history[i]; return Card(margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), child: ListTile(leading: rep.imagePath.isNotEmpty && File(rep.imagePath).existsSync() ? ClipRRect(borderRadius: BorderRadius.circular(6), child: Image.file(File(rep.imagePath), width: 55, height: 55, fit: BoxFit.cover)) : Container(width: 55, height: 55, decoration: BoxDecoration(color: Colors.green.shade100, borderRadius: BorderRadius.circular(6)), child: const Icon(Icons.grass, color: Colors.green)), title: Text(rep.disease, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), subtitle: Text("${rep.date}\nConfidence: ${rep.confidence}", style: const TextStyle(fontSize: 12)), isThreeLine: true, onTap: (){ showDialog(context: context, builder: (_)=>AlertDialog(title: Text(rep.disease), content: SingleChildScrollView(child: Text("${rep.date}\n\n${rep.treatment}")), actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text("Close"))])); })); })), Padding(padding: const EdgeInsets.all(12), child: SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () async { final prefs = await SharedPreferences.getInstance(); await prefs.clear(); _loadHistory(); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red), child: const Text("Clear All History", style: TextStyle(color: Colors.white))))),]))));
+              showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.white, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (ctx) => DraggableScrollableSheet(initialChildSize: 0.85, maxChildSize: 0.95, expand: false, builder: (ctx, scroll) => Column(children: [Container(height: 5, width: 50, margin: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10))), Text("📜 History (${_history.length})", style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)), const Divider(), Expanded(child: _history.isEmpty ? const Center(child: Text("No reports yet")) : ListView.builder(controller: scroll, itemCount: _history.length, itemBuilder: (c,i){ final rep = _history[i]; return Card(margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), child: ListTile(leading: rep.imagePath.isNotEmpty && File(rep.imagePath).existsSync() ? ClipRRect(borderRadius: BorderRadius.circular(6), child: Image.file(File(rep.imagePath), width: 55, height: 55, fit: BoxFit.cover)) : Container(width: 55, height: 55, decoration: BoxDecoration(color: Colors.green.shade100, borderRadius: BorderRadius.circular(6)), child: const Icon(Icons.grass)), title: Text(rep.disease, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), subtitle: Text("${rep.date}\nConf: ${rep.confidence}", style: const TextStyle(fontSize: 12)), isThreeLine: true)); })), Padding(padding: const EdgeInsets.all(12), child: SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () async { final prefs = await SharedPreferences.getInstance(); await prefs.clear(); _loadHistory(); Navigator.pop(context); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red), child: const Text("Clear All", style: TextStyle(color: Colors.white))))),]))));
             }
-          
             @override
             Widget build(BuildContext context) {
               return Scaffold(
@@ -150,6 +111,4 @@ jobs:
                   const SizedBox(height: 16),
                   if (_busy) Text(_status, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600))
                   else if (_disease.isEmpty) Text(_status, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.green.shade800, fontWeight: FontWeight.w500))
-                  else Column(children: [Container(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), decoration: BoxDecoration(color: _color.withOpacity(0.15), borderRadius: BorderRadius.circular(30), border: Border.all(color: _color, width: 2)), child: Text(_disease, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: _color))), const SizedBox(height: 6), Text("Confidence: $_conf • ${DateFormat('dd MMM hh:mm a').format(DateTime.now())}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)), const SizedBox(height: 12), Container(width: double.infinity, padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.green.shade200)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text("📋 CURRENT REPORT & SOLUTION:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 13)), const Divider(), Text(_treat, style: const TextStyle(fontSize: 14, height: 1.6))])), const SizedBox(height: 12), SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: _saveCurrentReport, icon: const Icon(Icons.save), label: const Text("💾 SAVE REPORT TO HISTORY", style: TextStyle(fontWeight: FontWeight.bold)), style: ElevatedButton.styleFrom(backgroundColor: Colors.blue.shade700, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))))),]),
-                  const SizedBox(height: 20),
-                  Row(children: [Expanded(child: ElevatedButton.icon(onPressed: () => pick(true), icon: const Icon(Icons.camera_alt), label: const Text("CAMERA"), style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade600, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))), const SizedBox(width: 12), Expanded(child: ElevatedButton.icon(onPressed: () => pick(false), icon: const Icon(Icons.photo), label: const Text("GALLERY"), style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.green.shade700, side: BorderSide(color: Colors.green.shade700, width: 2), padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))
+                  else Column(children: [Container(padding: const EdgeInsets.symmetric(horizontal: 
