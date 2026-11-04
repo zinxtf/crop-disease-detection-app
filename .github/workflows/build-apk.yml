@@ -13,10 +13,16 @@ jobs:
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
-      - name: Fix Gradle & Get Packages
+      - name: Fix Project and Set Your Icon
         run: |
           flutter create --platforms=android . --project-name crop_disease_detection_app --overwrite
           flutter pub get
+          echo "Setting your custom icon..."
+          for dpi in mipmap-hdpi mipmap-mdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
+            mkdir -p android/app/src/main/res/$dpi
+            cp assets/icon.png android/app/src/main/res/$dpi/ic_launcher.png
+          done
+          ls android/app/src/main/res/mipmap-hdpi/
       - name: Build APK
         run: flutter build apk --release
       - uses: actions/upload-artifact@v4
