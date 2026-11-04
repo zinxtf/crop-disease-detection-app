@@ -1,18 +1,16 @@
 name: crop_disease_detection_app
-description: Offline AI Crop Disease Detection App - Flutter + TFLite + Hindi Advice
+description: Offline AI Crop Disease Detection - All Fruits & Crops + Hindi Advice
 publish_to: 'none'
 version: 1.2.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  tflite_flutter: ^0.10.1
   image_picker: ^1.0.7
-  image: ^4.1.7
 
 dev_dependencies:
   flutter_test:
